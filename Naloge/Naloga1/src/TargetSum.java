@@ -3,7 +3,7 @@ import java.util.*;
 public class TargetSum {
     public static int smallestSubListWithTargetSum(List<Integer> A, int S) {
 
-        Deque<Integer> window = new ArrayDeque<>(A);
+        Deque<Integer> window = new ArrayDeque<>();
 		int tempValue;
         int sum = 0;
         int NumOfItems = A.size();
