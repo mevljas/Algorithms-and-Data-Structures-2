@@ -62,10 +62,10 @@ public class IQFitGame {
 
         // Select placement algorithm
 //        PlacementAlgorithm placementAlgorithm = new DummyPlacementAlgorithm(board, puzzlePieces);
-        PlacementAlgorithm placementAlgorithm = new ImprovedPlacementAlgorithm(board, puzzlePieces);
+//        PlacementAlgorithm placementAlgorithm = new ImprovedPlacementAlgorithm(board, puzzlePieces);
+        PlacementAlgorithm placementAlgorithm = new BacktrackPlacementAlgorithm(board, puzzlePieces);
 
         // Do the placement
-//        placementAlgorithm.placePuzzlePieces();
         placementAlgorithm.placePuzzlePieces();
 
         // IMPORTANT: Print for the evaluation. Even better if done at least once in the placement algorithm.
