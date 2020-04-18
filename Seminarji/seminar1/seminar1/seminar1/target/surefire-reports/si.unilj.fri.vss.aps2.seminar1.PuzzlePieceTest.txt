@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: si.unilj.fri.vss.aps2.seminar1.PuzzlePieceTest
+-------------------------------------------------------------------------------
+Tests run: 35, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s - in si.unilj.fri.vss.aps2.seminar1.PuzzlePieceTest

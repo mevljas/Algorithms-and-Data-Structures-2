@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: si.unilj.fri.vss.aps2.seminar1.IQFitInputReaderTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in si.unilj.fri.vss.aps2.seminar1.IQFitInputReaderTest
