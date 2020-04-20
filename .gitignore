@@ -2,3 +2,4 @@
 *.gdoc
 staro/
 .gitattributes
+.idea
