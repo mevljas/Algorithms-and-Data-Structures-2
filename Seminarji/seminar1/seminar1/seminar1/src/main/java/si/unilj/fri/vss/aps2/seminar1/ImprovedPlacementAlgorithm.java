@@ -29,7 +29,7 @@ public class ImprovedPlacementAlgorithm extends PlacementAlgorithm {
                 inserted = true;
             }
             else{
-                piece = piece.rotated(PuzzlePiece.Orientation.ANGLE90);
+                piece = piece.rotated(PuzzlePiece.Orientation.ANGLE0);
                 if (tryPlacingPuzzle(piece)){
                     inserted = true;
                 }
@@ -39,8 +39,16 @@ public class ImprovedPlacementAlgorithm extends PlacementAlgorithm {
                         inserted = true;
                     }
                     else{
-                        piece = piece.rotated(PuzzlePiece.Orientation.ANGLE90);
-                        tryPlacingPuzzle(piece);
+                        piece = piece.rotated(PuzzlePiece.Orientation.ANGLE180);
+                        if (tryPlacingPuzzle(piece)){
+                            inserted = true;
+                        }
+                        else{
+                            piece = piece.rotated(PuzzlePiece.Orientation.ANGLE270);
+                            if (tryPlacingPuzzle(piece)){
+                                inserted = true;
+                            }
+                        }
                     }
                 }
             }
