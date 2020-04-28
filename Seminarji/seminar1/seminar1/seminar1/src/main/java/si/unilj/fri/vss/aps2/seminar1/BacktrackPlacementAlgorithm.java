@@ -1,7 +1,9 @@
 package si.unilj.fri.vss.aps2.seminar1;
 
-import java.util.HashSet;
+
 import java.util.List;
+
+import static si.unilj.fri.vss.aps2.seminar1.PuzzlePiece.FILLED_SQUARE;
 
 public class BacktrackPlacementAlgorithm extends PlacementAlgorithm {
 
@@ -30,9 +32,13 @@ public class BacktrackPlacementAlgorithm extends PlacementAlgorithm {
         }
 
         boolean inserted;
+        boolean emptyPlace = true;
         while (y < board.height) {
 
             while (x < board.width) {
+
+//                check if current place is empty
+                emptyPlace = board.isEmptyAt(x, y);
 
                 for (PuzzlePiece piece : puzzlePieces) {
 
@@ -41,20 +47,37 @@ public class BacktrackPlacementAlgorithm extends PlacementAlgorithm {
                     }
 
                     int i = 0;
+
+//                  ignore some rotations
+                    if (piece.name == 'X' || piece.name == 'I') {
+                        i = 2;
+                    }
                     do {
                         piece = piece.rotated(PuzzlePiece.Orientation.values()[i++]);
-                        inserted = checkSides(x, y, piece) && checkWhiteSpaces(x, y, piece) && tryPlacingPuzzle(piece, x, y);
+                        if (!emptyPlace && piece.getAt(0, 0) == FILLED_SQUARE) {
+                            continue;
+                        }
+                        inserted = board.tryPlacePuzzlePiece(piece, board.new Offset(x, y));
                         if (inserted) {
-                            board.printBoard();
-                            if (placePuzzlePiecesRek(x + 1, y, n + 1)) {
-                                return true;
+                            if (!isColliding(x, y, piece)) {
+                                if (placePuzzlePiecesRek(x + 1, y, n + 1)) {
+                                    return true;
+                                } else {
+                                    board.printBoard();
+                                    board.removeLastPuzzlePiece();
+                                }
                             } else {
                                 board.removeLastPuzzlePiece();
                             }
+
+
                         }
                     } while (i < 4);
                 }
                 x++;
+            }
+            if (!rowFull(y)) {
+                return false;
             }
             y++;
             x = 0;
@@ -63,132 +86,59 @@ public class BacktrackPlacementAlgorithm extends PlacementAlgorithm {
     }
 
 
-    private boolean tryPlacingPuzzle(PuzzlePiece piece, int x, int y) {
-        return board.tryPlacePuzzlePiece(piece, board.new Offset(x, y));
+    private boolean isColliding(int x, int y, PuzzlePiece piece) {
+        return !(checkSpaceLeft(x, y, piece) && checkSides(x, y, piece));
     }
 
 
     private boolean checkSides(int x, int y, PuzzlePiece piece) {
+//        left
         if (x == 0) {
-            for (int i = 0; i < piece.getHeight() - 1; i++) {
-                if ((piece.getAt(0, i) == 0) && piece.getAt(0, i + 1) == 1) {
+            for (int yy = y; yy < y + piece.getHeight(); yy++) {
+                if (board.isEmptyAt(0, yy) && !board.isEmptyAt(0, yy + 1)) {
                     return false;
                 }
             }
         }
 
-        if (x + piece.getWidth() == board.getHeight()) {
-            for (int i = 0; i < piece.getHeight() - 1; i++) {
-                if ((piece.getAt(piece.width - 1, i) == 0) && (piece.getAt(piece.width - 1, i + 1) == 1)) {
+
+//        right
+        if (x + piece.getWidth() == board.getWidth()) {
+            for (int yy = y; yy < y + piece.getHeight() ; yy++) {
+                if (board.isEmptyAt(board.getWidth() - 1, yy) && !board.isEmptyAt(board.getWidth() - 1, yy + 1)) {
                     return false;
                 }
             }
         }
 
-        if (y == 0) {
-            for (int i = 0; i < piece.getHeight() - 1; i++) {
-                for (int j = 0; j < piece.getWidth(); j++) {
-                    if ((piece.getAt(j, i) == 0) && (piece.getAt(j, i + 1) == 1)) {
-                        return false;
-                    }
-                }
-            }
-        }
-
-        if (y + piece.getHeight() == board.getHeight()) {
-            for (int i = 0; i < piece.getWidth() - 1; i++) {
-                if ((piece.getAt(i, y + piece.getHeight()) == 0) && (piece.getAt(i + 1, y + piece.getHeight()) == 1)) {
-                    return false;
-                }
-            }
-
-            int st = 0;
-            int leftX = x - 1;
-            while (leftX >= 0 && board.getAt(leftX--, y + piece.getHeight() - 1) == null) {
-                st++;
-            }
-
-            if (st > 0 && st < 3) {
+//        top
+        for (int xx = x; xx < x + piece.getWidth(); xx++) {
+            if (board.isEmptyAt(xx, y)) {
                 return false;
             }
         }
-        if (y > 0) {
 
-            for (int i = 0; i < piece.getWidth(); i++) {
-                if (board.getAt(i, y - 1) == null) {
-                    return false;
-                }
-                if (board.getAt(i, y - 1) == piece) {
-                    int y2 = y - 2;
-                    do {
-                        if (board.getAt(i, y2) == null) {
-                            return false;
-                        }
-                    } while (board.getAt(i, y2--) == piece);
-                }
-            }
-        }
-        if (x > 0) {
-            for (int i = 0; i < piece.getHeight(); i++) {
-                if (board.getAt(x - 1, y) == null) {
+//        bottom
+        if (y + piece.getHeight() == board.getHeight()) {
+            for (int xx = x; xx < x + piece.getWidth(); xx++) {
+                if (board.isEmptyAt(xx, board.getHeight() - 1) && !board.isEmptyAt(xx + 1, board.getHeight() - 1)) {
                     return false;
                 }
             }
+
         }
+
+
         return true;
 
     }
 
-    private boolean checkWhiteSpaces(int x, int y, PuzzlePiece piece) {
-        return checkWhiteSpacesLeft(x, y, piece) && checkWhiteSpacesUp(x, y, piece);
-    }
 
-    private boolean checkWhiteSpacesLeft(int x, int y, PuzzlePiece piece) {
+    private boolean checkSpaceLeft(int x, int y, PuzzlePiece piece) {
         if (x > 0) {
-            HashSet<PuzzlePiece> puzzlePieces = new HashSet<>();
-            HashSet<PuzzlePiecePlacement> puzzlePiecePlacements = new HashSet<>();
-
-            for (int i = y; i < piece.getHeight(); i++) {
-                puzzlePieces.add(board.getAt(x - 1, i));
-            }
-
-            for (PuzzlePiecePlacement placement : board.placedPuzzlePieces) {
-                if (puzzlePieces.contains(placement.getPuzzlePiece())) {
-                    puzzlePiecePlacements.add(placement);
-                }
-            }
-
-            for (PuzzlePiecePlacement placement : puzzlePiecePlacements) {
-                PuzzlePiece leftPiece = placement.getPuzzlePiece();
-                int j = 0; //counter for the right piece
-                int offsetY = placement.getOffset().getOffsetY();
-                if (offsetY + leftPiece.getHeight() >= y && offsetY <= y + piece.getHeight()) {
-                    for (int i = 0; i < leftPiece.getHeight() - 1; i++) {
-                        if (j >= piece.getHeight()) {
-                            break;
-                        }
-
-                        if (offsetY + i >= y && offsetY + i <= y + piece.getHeight()) {
-                            if (leftPiece.getAt(leftPiece.getWidth() - 1, i) == 0 && leftPiece.getAt(leftPiece.getWidth() - 1, i + 1) == 1) {
-                                if (piece.getAt(0, j) == 0) {
-                                    return false;
-                                }
-                            }
-                        }
-
-                        if (piece.getAt(0, j) == 0) {
-                            if (j < piece.getHeight() - 1) {
-                                if (piece.getAt(0, j + 1) == 0) {
-                                    if (leftPiece.getAt(leftPiece.getWidth(), i) == 0) {
-                                        return false;
-                                    }
-                                }
-                            } else if (leftPiece.getAt(leftPiece.getWidth(), i) == 0) {
-                                return false;
-                            }
-                        }
-                        j++;
-                    }
+            for (int yy = y; yy < y + piece.getHeight(); yy++) {
+                if (board.isEmptyAt(x - 1, yy)) {
+                    return false;
                 }
             }
         }
@@ -196,37 +146,17 @@ public class BacktrackPlacementAlgorithm extends PlacementAlgorithm {
     }
 
 
-    private boolean checkWhiteSpacesUp(int x, int y, PuzzlePiece piece) {
-        if (y > 0) {
-            HashSet<PuzzlePiece> puzzlePieces = new HashSet<>();
-            HashSet<PuzzlePiecePlacement> puzzlePiecePlacements = new HashSet<>();
-
-            for (int i = x; i < piece.getWidth(); i++) {
-                puzzlePieces.add(board.getAt(i, y - 1));
-            }
-
-            for (PuzzlePiecePlacement placement : board.placedPuzzlePieces) {
-                if (puzzlePieces.contains(placement.getPuzzlePiece())) {
-                    puzzlePiecePlacements.add(placement);
-                }
-            }
-
-            for (PuzzlePiecePlacement placement : puzzlePiecePlacements) {
-                PuzzlePiece upperPiece = placement.getPuzzlePiece();
-                int offsetX = placement.getOffset().getOffsetX();
-                if (offsetX + upperPiece.getWidth() >= x && offsetX <= x + piece.getWidth()) {
-                    for (int i = 0; i < upperPiece.getWidth(); i++) {
-                        if (offsetX + i >= x && offsetX + i <= x + piece.getWidth()) {
-                            if (upperPiece.getAt(i, y - 1) == 0) {
-                                return false;
-                            }
-                        }
-                    }
-                }
+    boolean rowFull(int y) {
+        for (int x = 0; x < board.getWidth(); x++) {
+            if (board.isEmptyAt(x, y)) {
+                return false;
             }
         }
         return true;
+
+
     }
+
 
     private int countWhiteSpaces(PuzzlePiece piece) {
         int ct = 0;

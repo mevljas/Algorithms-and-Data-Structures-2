@@ -57,4 +57,22 @@ public class Board1DArrayImpl extends Board {
     public boolean isEmptyAt(final int x, final int y) {
         return isEmptyAt(x + y * width);
     }
+
+    private boolean canPlace(final int w, final int h, final int x, final int y, final PuzzlePiece piece) {
+        // Check if the colour of the piece exists already
+        if (usedColours.contains(piece.getColour()))
+            return false;
+
+        // Check if all the spots on the board are available
+        boolean available = true;
+        for (int yy = 0; available && yy < h; yy++) {
+            for (int xx = 0; available && xx < w; xx++) {
+                assert xx + x >= 0 && xx + x < width;
+                assert yy + y >= 0 && yy + y < height;
+                if (piece.getAt(xx, yy) == PuzzlePiece.FILLED_SQUARE)
+                    available = available && isEmptyAt(xx + x, yy + y);
+            }
+        }
+        return available;
+    }
 }
