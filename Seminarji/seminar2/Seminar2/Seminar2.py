@@ -3,7 +3,6 @@
 from math import ceil, log2
 import sys
 
-
 # A utility function to get the
 # middle index from corner indexes.
 from signal import set_wakeup_fd
@@ -90,6 +89,23 @@ def updateValue(arr, st, n, i, new_val):
     arr[i] = new_val;
 
     # Update the values of nodes in segment tree
+    updateValueUtil(st, 0, n - 1, i, diff, 0)
+
+
+def inverseValue(arr, st, n, i):
+    # Check for erroneous input index
+    if (i < 0 or i > n - 1):
+        print("Invalid Input", end="");
+        return;
+
+    # Get the difference between
+    # new value and old value
+    diff = (arr[i] % 1) - arr[i];
+
+    # Update the value in array
+    arr[i] = arr[i] % 1
+
+    # Update the values of nodes in segment tree
     updateValueUtil(st, 0, n - 1, i, diff, 0);
 
 
@@ -173,54 +189,50 @@ def constructST(arr, n):
 #           getSum(st, n, 1, 3), end="");
 
 
-
-
 def main():
     input_file_name = sys.argv[1]
     input_file = open(input_file_name, "r")
-    number_test_cases = int(input_file.readline())
-    for i in range(1, number_test_cases):
-        M = int(input_file.readline())
+    number_test_cases = int(input_file.readline().rstrip())
+    X = 1
+    Y = 0
+    for i in range(1, number_test_cases + 1):
+        print("Case %d:" % i)
+        M = int(input_file.readline().rstrip())
         piratesM = ""
-        for j in range(1, M):
-            T = int(input_file.readline())
-            piratesT = input_file.readline()
+        for j in range(1, M + 1):
+            T = int(input_file.readline().rstrip())
+            piratesT = input_file.readline().rstrip()
             piratesT = piratesT * T
             piratesM += piratesT
 
-        arr = list(piratesM)
+        arr = [int(i) for i in str(piratesM)]
         n = len(arr)
 
         # Build segment tree from given array
         st = constructST(arr, n)
 
-
         Q = int(input_file.readline())
-        for j in range(1, Q):
-            char, a, b = input_file.readline()
-            
+        output_num = 1
+        for j in range(1, Q + 1):
+            char, a, b = input_file.readline().rstrip().split(" ")
+            a = int(a)
+            b = int(b)
+            if char == 'F':
+                for z in range(a, b + 1):
+                    updateValue(arr, st, n, z, X)
+            elif char == 'E':
+                for z in range(a, b + 1):
+                    updateValue(arr, st, n, z, Y)
 
+            elif char == 'I':
+                for z in range(a, b + 1):
+                    inverseValue(arr, st, n, z)
 
-
-
-        # Print sum of values in array from index 1 to 3
-        print("Sum of values in given range = ",
-              getSum(st, n, 1, 3))
-
-        # Update: set arr[1] = 10 and update
-        # corresponding segment tree nodes
-        updateValue(arr, st, n, 1, 10)
-
-        # Find sum after the value is updated
-        print("Updated sum of values in given range = ",
-              getSum(st, n, 1, 3), end="")
-
-
-
-
+            elif char == 'S':
+                print("Q%d: %d" % (output_num, getSum(st, n, a, b)))
+                output_num += 1
 
     input_file.close()
-
 
 
 if __name__ == "__main__":
