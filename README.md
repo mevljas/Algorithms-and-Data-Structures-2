@@ -1,4 +1,4 @@
-# Algorithms-and-Data-Structures-2
+# Algorithms and Data Structures-2
 Algorithms and Data Structures 2 faculty subject.
 ## Content (Syllabus outline)
 In course Algorithms and Data Structures 2 student
